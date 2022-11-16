@@ -1,35 +1,48 @@
 export class DataChannelService {
   static #instance;
+  
   #myDataChannel;
-
   #callbackOnMessage;
+
 
   constructor() {
     // can return existing element in constructor to switch to that
     if (DataChannelService.#instance) {
       return DataChannelService.#instance;
     }
+    this.#myDataChannel = new BroadcastChannel('myDataChannel');
     DataChannelService.#instance = this;
   }
 
-  getNewMessages(callbackOnMessage) {
-    this.#callbackOnMessage = callbackOnMessage;
+  get callbackOnMessage() {
+    return this.#callbackOnMessage
   }
 
-  setupDataChannel(myRtcConnection) {
-    myRtcConnection.ondatachannel = (event) => {
-      const receiveChannel = event.channel;
-      receiveChannel.onmessage = (messageEvent) => {
-        if (this.#callbackOnMessage) {
-          this.#callbackOnMessage(messageEvent.data);
-        }
-      };
-    };
-
-    this.#myDataChannel = myRtcConnection.createDataChannel("myDataChannel");
+  set callbackOnMessage(callback) {
+    this.#callbackOnMessage = callback;
+    this.#myDataChannel.onmessage = callback;
   }
 
   sendChatMessage(message) {
-    this.#myDataChannel.send(message);
+    this.#myDataChannel.postMessage(message);
+  }
+
+  getNewMessages(callback) {
+    this.#callbackOnMessage = callback;
+    this.#myDataChannel.onmessage = callback;
+  }
+
+  saveMessage(message) {
+    let messages = JSON.parse(window.sessionStorage.getItem('messages'));
+    if (!messages) {
+      messages = [message];
+    } else {
+      messages.push(message);
+    }
+    window.sessionStorage.setItem('messages', JSON.stringify(messages));
+  }
+  getOldMessages() {
+    const messages = window.sessionStorage.getItem('messages');
+    return messages? JSON.parse(messages) : [];
   }
 }

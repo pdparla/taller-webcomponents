@@ -6,7 +6,7 @@ import { Pages } from "../models/Pages";
 export class HomePage extends HTMLElement {
 
 
-  #bc;
+  #broadcastChannel;
 
   constructor() {
     super();
@@ -15,39 +15,15 @@ export class HomePage extends HTMLElement {
 
   connectedCallback() {
     // auto join for local dev
-    this.#bc = new BroadcastChannel("room-auto-join");
-    this.#bc.onmessage = (message) => {
-      this.shadowRoot.getElementById("roomIdInput").value = message.data;
-      this.joinRoom();
-    };
+    this.#broadcastChannel = new BroadcastChannel("room-auto-join");
   }
 
   disconnectedCallback() {
-    this.#bc.close();
-  }
-
-  async newRoom() {
-    this.#gotoRoomPage();
-  }
-
-  async joinRoom() {
-    const inputRoomId = this.shadowRoot.getElementById("roomIdInput").value;
-    if (!inputRoomId) {
-      alert("No Room");
-      return;
-    }
-      alert(" Room not found");
-      return;
-    this.#gotoRoomPage();
+    this.#broadcastChannel.close();
   }
 
   gotoAboutPage() {
     const event = new CustomEvent("ChangePage", { detail: Pages.About });
-    this.dispatchEvent(event);
-  }
-
-  #gotoRoomPage() {
-    const event = new CustomEvent("ChangePage", { detail: Pages.Room });
     this.dispatchEvent(event);
   }
 }

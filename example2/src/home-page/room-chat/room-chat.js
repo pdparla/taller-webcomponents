@@ -1,11 +1,9 @@
 import html from "./room-chat.html";
 import css from "./room-chat.css";
 import { setupShadow } from "../../helpers";
-import { WebRTCService } from "../../services/webrtc.service";
 import { DataChannelService } from "../../services/data-channel.service";
 
 export class RoomChat extends HTMLElement {
-  #webRTCService = new WebRTCService();
   #DataChannelService = new DataChannelService();
   #chatMessageText = "";
 
@@ -15,9 +13,17 @@ export class RoomChat extends HTMLElement {
   }
 
   connectedCallback() {
-    this.#DataChannelService.getNewMessages((message) => {
-      this.addMessageToChat(message, false);
+    this.#DataChannelService.getOldMessages().forEach((message) => {
+      this.addMessageToHTML(message);
     });
+    this.#DataChannelService.getNewMessages((message) => {
+      let wrappedMessage = this.addMessageToChat(message, false);
+      this.saveMessage(wrappedMessage)
+    });
+  }
+
+  saveMessage(message) {
+    this.#DataChannelService.saveMessage(message);
   }
 
   chatMessageChange(element) {
@@ -26,16 +32,22 @@ export class RoomChat extends HTMLElement {
 
   sendChatMessage() {
     this.#DataChannelService.sendChatMessage(this.#chatMessageText);
-    this.addMessageToChat(this.#chatMessageText, true);
+    const wrappedMessage = this.addMessageToChat(this.#chatMessageText, true);
+    this.saveMessage(wrappedMessage);
     this.#chatMessageText = "";
     this.shadowRoot.getElementById("chatMessage").value = this.#chatMessageText;
   }
 
+  addMessageToHTML(wrappedMessage) {
+    const chatEl = this.shadowRoot.getElementById("chatList");
+    chatEl.innerHTML += wrappedMessage;
+    return wrappedMessage;
+  }
+  
   addMessageToChat(message, myOwn) {
     const byText = myOwn ? "You: " : "Guest: ";
     const cssClass = myOwn ? "my-message" : "other-message ";
-    const chatEl = this.shadowRoot.getElementById("chatList");
-    const wrappedMessage = `<div class="${cssClass}"><b>${byText}</b>${message}</div>`;
-    chatEl.innerHTML = chatEl.innerHTML + wrappedMessage;
+    const wrappedMessage = `<div class="${cssClass}"><b>${byText}</b>${message.data? message.data : message}</div>`;
+    return this.addMessageToHTML(wrappedMessage);
   }
 }
