@@ -1,0 +1,27 @@
+{
+  "name": "web-components-webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "start": "vite serve src",
+    "build": "vite build src",
+    "browser-support": "npx browserslist",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JGH153/web-components-webrtc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserslist": "last 2 Chrome versions",
+  "homepage": "https://github.com/JGH153/web-components-webrtc#readme",
+  "devDependencies": {
+    "rollup-plugin-copy": "^3.4.0",
+    "vite": "^2.7.2"
+  }
+}
