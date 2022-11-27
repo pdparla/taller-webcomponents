@@ -1,0 +1,16 @@
+<h1>Chat!</h1>
+<div class="chat-container">
+  <div id="chatList"></div>
+  <div class="inputs-container">
+    <input
+      is="text-input"
+      id="chatMessage"
+      class="input"
+      type="text"
+      placeholder="Type a new message"
+      onchange="this.chatMessageChange(this)"
+      autofocus
+    />
+    <button class="button" onclick="this.sendChatMessage()">Send message</button>
+  </div>
+</div>
